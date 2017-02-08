@@ -1,0 +1,131 @@
+<!doctype html>
+
+<!--
+Copyright (C) 2017 ddly
+
+This file is part of LazyMe.
+
+LazyMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Remote control</title>
+  <style>
+    html {
+      font-size: 125%;
+      font-family: sans-serif;
+    }
+    html, body, * {
+      margin: 0; 
+      padding: 0;
+    }
+    body {
+      text-align: center;
+      background-color: #192125; 
+      color: #435965;
+    }
+    #wrapper {
+      width: 100%;
+      text-align: center;
+    }
+    #volumeLevel {
+      font-size: 10rem; 
+      margin-bottom: 1rem;
+      user-select: none;
+    }
+    #volumeSlider {
+      width: 75%;
+      min-width: 500px;
+      -webkit-appearance: none; 
+      outline: none; 
+      background: #435965;
+    }
+    #volumeSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      background: red;
+      width: 5rem;
+      height: 5rem;
+      background: #2f3e46;
+    }
+    #powerButton {
+      user-select: none;
+      -webkit-appearance: none;
+      width: 9rem;
+      height: 9rem;
+      border: solid 1rem #5f2626;
+      border-radius: 5rem;
+      margin: 10rem;
+    }
+    #powerButton:focus {
+      outline: none;
+    }
+    #powerButton:after {
+      content: "";
+      position: absolute;
+      width: 1rem;
+      height: 5rem;
+      background: #5f2626; 
+      top: 9rem;
+      left: 50%;
+      margin-left: -1rem;
+      border: #192125 solid 0.5rem;
+    }
+    #powerButton:checked:after {
+      content: "";
+      position: absolute;
+      width: 1rem;
+      height: 8rem;
+      top: 10.5rem;
+      left: 50%;
+      margin-left: -0.5rem;
+      animation-name: powerButton;
+      transform: rotate(45deg);
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <input id="powerButton" type="checkbox" __CHK__ onclick="powerOff(this.checked)" />
+    <div id="volumeLevel">__VOLUME__</div>
+    <input id="volumeSlider" type="range" min=0 max=100 step=5 value=__VOLUME__ onchange="updateValue(this.value)" />
+  </div>
+  <script>
+    var xhr = new XMLHttpRequest()
+    var addr = "__HOST__:__PORT__"
+
+    function post(s) {
+      xhr.open("POST", s, true)
+      xhr.send("")
+    }
+
+    function updateValue(v) {
+      var vi = document.getElementById("volumeLevel")
+      vi.innerHTML = v
+      post("http://" + addr + "/volume/" + v)
+    }
+
+    function powerOff(v) {
+      s = "cancel"
+      if (true == v) {
+        s = "30"
+      }
+      post("http://" + addr + "/shutdown/" + s)
+    }
+  </script>
+</body>
+</html>
+
