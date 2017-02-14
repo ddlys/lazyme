@@ -26,7 +26,7 @@ git clone https://github.com/ddlys/lazyme
 
 Type from the cloned directory to start server
 ```
-./lazyme.sh -i 0.0.0.0 -p 12345
+./lazyme.py -i 0.0.0.0 -p 12345
 ```
 
 Connect to the server
