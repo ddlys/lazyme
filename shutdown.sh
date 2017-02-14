@@ -27,6 +27,9 @@ fi
 if [[ $1 == "cancel" ]]; then
   /sbin/shutdown -c
   echo "Shutdown cancelled"
+elif [[ $1 == "now" ]]; then
+  /sbin/shutdown now
+  echo "Shutting down the system"
 else
   /sbin/shutdown -P $1
   echo "System will shut down in $1 minutes"

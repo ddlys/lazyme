@@ -41,19 +41,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       width: 100%;
       text-align: center;
     }
-    #volumeLevel {
+    #soundVolumeIndicator {
       font-size: 10rem; 
       margin-bottom: 1rem;
       user-select: none;
     }
-    #volumeSlider {
+    #soundVolumeSlider {
       width: 75%;
       min-width: 500px;
       -webkit-appearance: none; 
       outline: none; 
       background: #435965;
     }
-    #volumeSlider::-webkit-slider-thumb {
+    #soundVolumeSlider::-webkit-slider-thumb {
       -webkit-appearance: none;
       background: red;
       width: 5rem;
@@ -97,33 +97,128 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
   </style>
 </head>
-<body>
+<body onload="Init()">
   <div id="wrapper">
-    <input id="powerButton" type="checkbox" __CHK__ onclick="powerOff(this.checked)" />
-    <div id="volumeLevel">__VOLUME__</div>
-    <input id="volumeSlider" type="range" min=0 max=100 step=5 value=__VOLUME__ onchange="updateValue(this.value)" />
+    <input id="powerButton" type="checkbox" __CHK__/>
+    <div id="soundVolumeIndicator">__VOLUME__</div>
+    <input id="soundVolumeSlider" type="range" min=0 max=100 step=5 value=__VOLUME__ />
   </div>
   <script>
-    var xhr = new XMLHttpRequest()
-    var addr = "__HOST__:__PORT__"
+    var Device = {}
 
-    function post(s) {
-      xhr.open("POST", s, true)
-      xhr.send("")
+    Device.HasTouchScreen = function () {
+        return "ontouchstart" in window
     }
 
-    function updateValue(v) {
-      var vi = document.getElementById("volumeLevel")
-      vi.innerHTML = v
-      post("http://" + addr + "/volume/" + v)
+    Device.Vibrate = function(sequence) {
+        if (navigator && navigator.vibrate) {
+            navigator.vibrate(sequence)
+        }
     }
 
-    function powerOff(v) {
-      s = "cancel"
-      if (true == v) {
-        s = "30"
-      }
-      post("http://" + addr + "/shutdown/" + s)
+
+    var UI = {}
+
+    UI.PowerButton = undefined
+
+    UI.SoundVolumeSlider = undefined
+
+    UI.SoundVolumeIndicator = undefined
+    
+    UI.RemoveElement = function(element) {
+        if (element) {
+            element.remove()
+        }
+    }
+
+    UI.SetText = function(element, text) {
+        element.innerHTML = text
+    }
+
+    UI.Destroy = function() {
+        UI.RemoveElement(UI.PowerButton)
+        UI.RemoveElement(UI.SoundVolumeSlider)
+        UI.RemoveElement(UI.SoundVolumeIndicator)
+    }
+
+
+    var Client = {}
+
+    Client.xhr = new XMLHttpRequest()
+
+    Client.Post = function(path) {
+        Client.xhr.open("POST", "http://__HOST__:__PORT__/" + path, true)
+        Client.xhr.send("")
+    }
+
+
+    var PowerController = {}
+
+    PowerController.ImmediateShutdownTimer = 0
+
+    PowerController.OnTouch = function(event) {
+        event.preventDefault()
+
+        var element = event.srcElement
+
+        Device.Vibrate(50)
+        element.checked = !element.checked
+
+        PowerController.ImmediateShutdownTimer = setTimeout(function() {
+            Device.Vibrate(250)
+            Client.Post("shutdown/now")
+            UI.Destroy()
+        }, 5000)
+    }
+
+    PowerController.OnRelease = function(event) {
+        event.preventDefault()
+
+        var element = event.srcElement
+
+        if (element.checked) {
+            Client.Post("shutdown/30")
+        } else {
+            Client.Post("shutdown/cancel")
+        }
+
+        clearTimeout(PowerController.ImmediateShutdownTimer)
+    }
+
+    PowerController.OnClick = function(event) {
+        event.preventDefault()
+
+        var element = event.srcElement
+
+        element.checked = !element.checked
+    }
+
+
+    var SoundController = {}
+
+    SoundController.SetVolume = function(event) {
+        var element = event.srcElement
+
+        UI.SetText(UI.SoundVolumeIndicator, element.value)
+
+        Client.Post("volume/" + element.value)
+    }
+
+    function Init() {
+        UI.PowerButton = document.getElementById("powerButton")
+        UI.SoundVolumeSlider = document.getElementById("soundVolumeSlider")
+        UI.SoundVolumeIndicator = document.getElementById("soundVolumeIndicator")
+
+        if (Device.HasTouchScreen()) {
+            UI.PowerButton.ontouchstart = PowerController.OnTouch
+            UI.PowerButton.ontouchend = PowerController.OnRelease
+        } else {
+            UI.PowerButton.onmousedown = PowerController.OnTouch
+            UI.PowerButton.onmouseup = PowerController.OnRelease
+            UI.PowerButton.onclick = PowerController.OnClick
+        }
+
+        UI.SoundVolumeSlider.onchange = SoundController.SetVolume
     }
   </script>
 </body>
