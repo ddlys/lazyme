@@ -22,10 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Remote control</title>
   <style>
     html {
-      font-size: 125%;
+      font-size: 62.5%;
       font-family: sans-serif;
     }
     html, body, * {
@@ -48,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
     #soundVolumeSlider {
       width: 75%;
-      min-width: 500px;
+      max-width: 50rem;
       -webkit-appearance: none; 
       outline: none; 
       background: #435965;
@@ -67,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       height: 9rem;
       border: solid 1rem #5f2626;
       border-radius: 5rem;
-      margin: 10rem;
+      margin: 5rem;
     }
     #powerButton:focus {
       outline: none;
@@ -78,7 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       width: 1rem;
       height: 5rem;
       background: #5f2626; 
-      top: 9rem;
+      top: 4rem;
       left: 50%;
       margin-left: -1rem;
       border: #192125 solid 0.5rem;
@@ -88,7 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       position: absolute;
       width: 1rem;
       height: 8rem;
-      top: 10.5rem;
+      top: 5.5rem;
       left: 50%;
       margin-left: -0.5rem;
       animation-name: powerButton;
@@ -125,22 +126,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     UI.SoundVolumeIndicator = undefined
     
-    UI.RemoveElement = function(element) {
-        if (element) {
-            element.remove()
-        }
-    }
-
     UI.SetText = function(element, text) {
         element.innerHTML = text
     }
-
-    UI.Destroy = function() {
-        UI.RemoveElement(UI.PowerButton)
-        UI.RemoveElement(UI.SoundVolumeSlider)
-        UI.RemoveElement(UI.SoundVolumeIndicator)
-    }
-
 
     var Client = {}
 
@@ -167,7 +155,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         PowerController.ImmediateShutdownTimer = setTimeout(function() {
             Device.Vibrate(250)
             Client.Post("shutdown/now")
-            UI.Destroy()
         }, 5000)
     }
 
