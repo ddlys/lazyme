@@ -9,6 +9,8 @@ Abilities:
 - Setting 30 min shutdown timer
 - Cancelling shutdown
 
+![UI](/ui.png?raw=true)
+
 ## Prerequisites
 
 - python >= 2.7
