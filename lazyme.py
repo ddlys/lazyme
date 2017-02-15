@@ -60,6 +60,12 @@ class Controller:
         return res
 
     @staticmethod
+    def ShutdownNow(v):
+        res = Controller.Exec("./shutdown.sh now")
+        Controller.shutdown = True
+        return res
+
+    @staticmethod
     def CancelShutdown(v):
         res = Controller.Exec("./shutdown.sh " + str(v))
         Controller.shutdown = False
@@ -101,6 +107,7 @@ class Router:
 
 Router.Add(".*/volume/([0-9]+)", Controller.SetVolume)
 Router.Add(".*/shutdown/([0-9]+)", Controller.Shutdown)
+Router.Add(".*/shutdown/(now)", Controller.ShutdownNow)
 Router.Add(".*/shutdown/(cancel)", Controller.CancelShutdown)
 
 
