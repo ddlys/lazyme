@@ -22,6 +22,7 @@ from re import search as RSearch
 from optparse import OptionParser
 from subprocess import check_output as SysCall
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from SocketServer import ThreadingMixIn
 
 
 class Validator(object):
@@ -74,18 +75,15 @@ class Controller:
 
 class Loader:
     @staticmethod
-    def LoadIndexPage(path, serveraddr):
+    def LoadIndexPage(path):
         try:
             with open(path) as f:
                 data = f.read()
                 vol = Controller.GetVolume()
                 chk = "checked=true" if Controller.shutdown else ""
-                host, port = serveraddr
                 return ( data
-                    .replace("__VOLUME__", str(vol))
-                    .replace("__CHK__", str(chk))
-                    .replace("__HOST__", str(host))
-                    .replace("__PORT__", str(port)) )
+                    .replace("__VOL__", str(vol))
+                    .replace("__CHK__", str(chk)) )
         except:
             return ""
 
@@ -116,8 +114,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        indexPage = Loader.LoadIndexPage("index.tmpl", self.server.server_address)
-        self.wfile.write(indexPage)
+        self.wfile.write(Loader.LoadIndexPage("index.tmpl"))
 
     def do_POST(self):
         if Router.Call(self.path):
@@ -126,9 +123,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(400)
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    pass
+
+
 class Server(object):
     def __init__(self, host, port):
-        self.httpd = HTTPServer((host, port), Handler)
+        self.httpd = ThreadedHTTPServer((host, port), Handler)
 
     def Start(self):
         self.httpd.serve_forever()

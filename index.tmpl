@@ -101,8 +101,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <body onload="Init()">
   <div id="wrapper">
     <input id="powerButton" type="checkbox" __CHK__/>
-    <div id="soundVolumeIndicator">__VOLUME__</div>
-    <input id="soundVolumeSlider" type="range" min=0 max=100 step=5 value=__VOLUME__ />
+    <div id="soundVolumeIndicator">__VOL__</div>
+    <input id="soundVolumeSlider" type="range" min=0 max=100 step=5 value=__VOL__ />
   </div>
   <script>
     var Device = {}
@@ -135,7 +135,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Client.xhr = new XMLHttpRequest()
 
     Client.Post = function(path) {
-        Client.xhr.open("POST", "http://__HOST__:__PORT__/" + path, true)
+        Client.xhr.open("POST", "/" + path, true)
         Client.xhr.send("")
     }
 
